@@ -2,9 +2,9 @@
 import { useState, Fragment } from 'react';
 import Image from 'next/image';
 
-import { manufacturers } from '../../constants';
+import { manufacturers } from '../constants';
 import { Combobox, Transition } from '@headlessui/react';
-import { SearchManufacturerProps } from '../../types';
+import { SearchManufacturerProps } from '../types';
 
 function SearchManufacturer({
   manufacturer,
