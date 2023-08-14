@@ -11,11 +11,11 @@ import {
 } from '../utils';
 
 function CarCard({ car }: CarCardProps) {
-  const { city_mpg, year, make, model, transmission, drive } = car;
+  const { city_mpg, make, model, transmission, drive } = car;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const carRent = calculateCarRent(city_mpg, year);
+  const carRent = calculateCarRent(car);
   const carRentInPLN = convertUSDtoPLN(parseInt(carRent));
   const city_lper100km = convertMPGtoLPer100KM(city_mpg);
 

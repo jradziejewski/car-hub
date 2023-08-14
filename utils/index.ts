@@ -1,4 +1,4 @@
-import { CarProps, FilterProps } from '../types';
+import { CarProps, FilterProps, RentalOptions } from '../types';
 
 export async function fetchCars(filters: FilterProps) {
   const { manufacturer, year, model, limit, fuel } = filters;
@@ -34,17 +34,29 @@ export const generateCarImageUrl = (car: CarProps, angle?: string) => {
   return `${url}`;
 };
 
-export const calculateCarRent = (city_mpg: number, year: number) => {
-  const basePricePerDay = 50;
-  const mileageFactor = 0.1;
-  const ageFactor = 0.05;
+const rentalOptions: RentalOptions = {
+  baseRate: 100,
+  mpgFactor: 2,
+  classFactor: {
+    'subcompact car': 100,
+    'two seater': 100,
+    sedan: 15,
+    'small sport utility vehicle': 50,
+  },
+  ageFactor: (currentYear, carYear) => 0.9 ** (currentYear - carYear),
+};
 
-  const mileageRate = city_mpg * mileageFactor;
-  const ageRate = (new Date().getFullYear() - year) * ageFactor;
+export const calculateCarRent = (car: CarProps, options = rentalOptions) => {
+  const { city_mpg, class: carClass, year } = car;
+  const { baseRate, mpgFactor, classFactor, ageFactor } = options;
 
-  const rentalPerDay = basePricePerDay + mileageRate + ageRate;
+  const mpgEffect = city_mpg * mpgFactor;
+  const classEffect = classFactor[carClass] || 1;
+  const ageEffect = ageFactor(new Date().getFullYear(), year);
 
-  return rentalPerDay.toFixed(0);
+  const rentalCost = baseRate + mpgEffect + classEffect + ageEffect;
+
+  return rentalCost.toFixed(0);
 };
 
 export function convertUSDtoPLN(amountInUSD: number) {
@@ -61,3 +73,12 @@ export function convertMPGtoLPer100KM(mpg: number) {
   const lPerKm = (100 * gallonsToLiters) / (mpg * milesToKilometers);
   return lPerKm.toFixed(1);
 }
+
+export const updateSearchParams = (type: string, value: string) => {
+  const searchParams = new URLSearchParams(window.location.search);
+  searchParams.set(type, value);
+
+  const newPathname = `${window.location.pathname}?${searchParams.toString()}`;
+
+  return newPathname;
+};
